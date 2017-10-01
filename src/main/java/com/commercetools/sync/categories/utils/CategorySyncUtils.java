@@ -2,6 +2,7 @@ package com.commercetools.sync.categories.utils;
 
 import com.commercetools.sync.categories.CategorySyncOptions;
 import com.commercetools.sync.commons.BaseSyncOptions;
+import com.commercetools.sync.commons.exceptions.BuildUpdateActionException;
 import io.sphere.sdk.categories.Category;
 import io.sphere.sdk.categories.CategoryDraft;
 import io.sphere.sdk.commands.UpdateAction;
@@ -46,7 +47,8 @@ public final class CategorySyncUtils {
     @Nonnull
     public static List<UpdateAction<Category>> buildActions(@Nonnull final Category oldCategory,
                                                             @Nonnull final CategoryDraft newCategory,
-                                                            @Nonnull final CategorySyncOptions syncOptions) {
+                                                            @Nonnull final CategorySyncOptions syncOptions)
+            throws BuildUpdateActionException {
         final List<UpdateAction<Category>> updateActions =
             buildCoreActions(oldCategory, newCategory, syncOptions);
         final List<UpdateAction<Category>> assetUpdateActions =
@@ -73,7 +75,8 @@ public final class CategorySyncUtils {
     @Nonnull
     public static List<UpdateAction<Category>> buildCoreActions(@Nonnull final Category oldCategory,
                                                                 @Nonnull final CategoryDraft newCategory,
-                                                                @Nonnull final CategorySyncOptions syncOptions) {
+                                                                @Nonnull final CategorySyncOptions syncOptions)
+            throws BuildUpdateActionException {
         final List<UpdateAction<Category>> updateActions = buildUpdateActionsFromOptionals(Arrays.asList(
             buildChangeNameUpdateAction(oldCategory, newCategory),
             buildChangeSlugUpdateAction(oldCategory, newCategory),

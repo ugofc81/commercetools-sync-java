@@ -3,6 +3,7 @@ package com.commercetools.sync.categories;
 import com.commercetools.sync.categories.helpers.CategoryReferenceResolver;
 import com.commercetools.sync.categories.helpers.CategorySyncStatistics;
 import com.commercetools.sync.commons.BaseSync;
+import com.commercetools.sync.commons.exceptions.BuildUpdateActionException;
 import com.commercetools.sync.commons.exceptions.ReferenceResolutionException;
 import com.commercetools.sync.services.CategoryService;
 import com.commercetools.sync.services.TypeService;
@@ -513,7 +514,15 @@ public class CategorySync extends BaseSync<CategoryDraft, CategorySyncStatistics
         final List<CompletableFuture<Void>> futures =
             matchingCategories.entrySet().stream()
                               .filter(entry -> !requiresChangeParentUpdateAction(entry.getValue(), entry.getKey()))
-                              .map(entry -> buildUpdateActionsAndUpdate(entry.getValue(), entry.getKey()))
+                              .map(entry -> {
+                                  try {
+                                      return buildUpdateActionsAndUpdate(entry.getValue(), entry.getKey());
+                                  } catch (BuildUpdateActionException buildUpdateActionException) {
+                                      handleError("error building update actions for category...",
+                                              buildUpdateActionException);
+                                      return CompletableFuture.completedFuture(null);
+                                  }
+                              })
                               .map(CompletionStage::toCompletableFuture)
                               .collect(Collectors.toList());
         return CompletableFuture.allOf(futures.toArray(new CompletableFuture[futures.size()]));
@@ -532,7 +541,8 @@ public class CategorySync extends BaseSync<CategoryDraft, CategorySyncStatistics
      */
     @SuppressFBWarnings("NP_NONNULL_PARAM_VIOLATION") // https://github.com/findbugsproject/findbugs/issues/79
     private CompletionStage<Void> buildUpdateActionsAndUpdate(@Nonnull final Category oldCategory,
-                                                              @Nonnull final CategoryDraft newCategory) {
+                                                              @Nonnull final CategoryDraft newCategory)
+            throws BuildUpdateActionException {
         final List<UpdateAction<Category>> updateActions = buildActions(oldCategory, newCategory, syncOptions);
         if (!updateActions.isEmpty()) {
             return updateCategory(oldCategory, newCategory, updateActions);

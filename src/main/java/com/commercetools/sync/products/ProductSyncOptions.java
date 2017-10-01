@@ -7,8 +7,7 @@ import io.sphere.sdk.products.Product;
 
 import javax.annotation.Nonnull;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
@@ -26,8 +25,8 @@ public class ProductSyncOptions extends BaseSyncOptions {
     private final boolean ensurePriceChannels;
 
     ProductSyncOptions(@Nonnull final SphereClient ctpClient,
-                       final BiConsumer<String, Throwable> errorCallBack,
-                       final Consumer<String> warningCallBack,
+                       final BiFunction<String, Throwable, Boolean> errorCallBack,
+                       final Function<String, Boolean> warningCallBack,
                        final int batchSize,
                        final boolean removeOtherLocales,
                        final boolean removeOtherSetEntries,

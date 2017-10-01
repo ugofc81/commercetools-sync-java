@@ -3,13 +3,13 @@ package com.commercetools.sync.commons;
 import io.sphere.sdk.client.SphereClient;
 
 import javax.annotation.Nonnull;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public abstract class BaseSyncOptionsBuilder<T extends BaseSyncOptionsBuilder<T, S>, S extends BaseSyncOptions> {
     protected SphereClient ctpClient;
-    protected BiConsumer<String, Throwable> errorCallBack;
-    protected Consumer<String> warningCallBack;
+    protected BiFunction<String, Throwable, Boolean> errorCallBack;
+    protected Function<String, Boolean> warningCallBack;
     protected int batchSize = 30;
     protected boolean removeOtherLocales = true;
     protected boolean removeOtherSetEntries = true;
@@ -24,7 +24,7 @@ public abstract class BaseSyncOptionsBuilder<T extends BaseSyncOptionsBuilder<T,
      * @param errorCallBack the new value to set to the error callback.
      * @return {@code this} instance of {@link BaseSyncOptionsBuilder}
      */
-    public T setErrorCallBack(@Nonnull final BiConsumer<String, Throwable> errorCallBack) {
+    public T setErrorCallBack(@Nonnull final BiFunction<String, Throwable, Boolean> errorCallBack) {
         this.errorCallBack = errorCallBack;
         return getThis();
     }
@@ -36,7 +36,7 @@ public abstract class BaseSyncOptionsBuilder<T extends BaseSyncOptionsBuilder<T,
      * @param warningCallBack the new value to set to the warning callback.
      * @return {@code this} instance of {@link BaseSyncOptionsBuilder}
      */
-    public T setWarningCallBack(@Nonnull final Consumer<String> warningCallBack) {
+    public T setWarningCallBack(@Nonnull final Function<String, Boolean> warningCallBack) {
         this.warningCallBack = warningCallBack;
         return getThis();
     }

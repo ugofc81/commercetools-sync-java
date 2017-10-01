@@ -77,8 +77,15 @@ public class CategorySyncIT {
         deleteAllCategories(CTP_TARGET_CLIENT);
 
         final CategorySyncOptions categorySyncOptions = CategorySyncOptionsBuilder.of(CTP_TARGET_CLIENT)
-                                                                                  .setErrorCallBack(LOGGER::error)
-                                                                                  .setWarningCallBack(LOGGER::warn)
+                                                                                  .setErrorCallBack(
+                                                                                          (errorMessage, exception) -> {
+                                                                                              LOGGER.error(errorMessage, exception);
+                                                                                              return true;
+                                                                                  })
+                                                                                  .setWarningCallBack(warningMessage -> {
+                                                                                      LOGGER.warn(warningMessage);
+                                                                                      return true;
+                                                                                  })
                                                                                   .build();
         categorySync = new CategorySync(categorySyncOptions);
 

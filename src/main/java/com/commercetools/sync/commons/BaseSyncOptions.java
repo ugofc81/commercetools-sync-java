@@ -5,12 +5,14 @@ import io.sphere.sdk.client.SphereClient;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class BaseSyncOptions {
     private final SphereClient ctpClient;
-    private final BiConsumer<String, Throwable> errorCallBack;
-    private final Consumer<String> warningCallBack;
+    private final BiFunction<String, Throwable, Boolean> errorCallBack;
+    private final Function<String, Boolean> warningCallBack;
     private int batchSize;
     private boolean removeOtherLocales = true;
     private boolean removeOtherSetEntries = true;
@@ -19,8 +21,8 @@ public class BaseSyncOptions {
     private boolean allowUuid = false;
 
     protected BaseSyncOptions(@Nonnull final SphereClient ctpClient,
-                              final BiConsumer<String, Throwable> errorCallBack,
-                              final Consumer<String> warningCallBack,
+                              final BiFunction<String, Throwable, Boolean> errorCallBack,
+                              final Function<String, Boolean> warningCallBack,
                               final int batchSize,
                               final boolean removeOtherLocales,
                               final boolean removeOtherSetEntries,
@@ -55,7 +57,7 @@ public class BaseSyncOptions {
      * @return the {@code errorCallBack} {@link BiConsumer}&lt;{@link String}, {@link Throwable}&gt; function set to
      *      {@code this} {@link BaseSyncOptions}
      */
-    public BiConsumer<String, Throwable> getErrorCallBack() {
+    public BiFunction<String, Throwable, Boolean> getErrorCallBack() {
         return errorCallBack;
     }
 
@@ -67,7 +69,7 @@ public class BaseSyncOptions {
      * @return the {@code warningCallBack} {@link Consumer}&lt;{@link String}&gt; function set to {@code this}
      *      {@link BaseSyncOptions}
      */
-    public Consumer<String> getWarningCallBack() {
+    public Function<String, Boolean> getWarningCallBack() {
         return warningCallBack;
     }
 
@@ -130,10 +132,8 @@ public class BaseSyncOptions {
      *
      * @param warningMessage the warning message to supply to the {@code warningCallBack} function.
      */
-    public void applyWarningCallback(@Nonnull final String warningMessage) {
-        if (this.warningCallBack != null) {
-            this.warningCallBack.accept(warningMessage);
-        }
+    public Boolean applyWarningCallback(@Nonnull final String warningMessage) {
+        return this.warningCallBack != null ? warningCallBack.apply(warningMessage) : false;
     }
 
     /**
@@ -145,10 +145,8 @@ public class BaseSyncOptions {
      * @param exception    the {@link Throwable} instance to supply to the {@code errorCallBack} function as a
      *                     second param.
      */
-    public void applyErrorCallback(@Nonnull final String errorMessage, @Nullable final Throwable exception) {
-        if (this.errorCallBack != null) {
-            this.errorCallBack.accept(errorMessage, exception);
-        }
+    public Boolean applyErrorCallback(@Nonnull final String errorMessage, @Nullable final Throwable exception) {
+        return this.errorCallBack != null ? errorCallBack.apply(errorMessage, exception) : false;
     }
 
     /**
